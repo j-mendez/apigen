@@ -4,7 +4,7 @@ Auto generate your api routes for development and production. Use mocks to build
 
 ## Getting Started
 
-Make sure to create a mocks and a schemas directory. Check out the schema section to learn how to build your api. The idea is that the api routes are always checked in `.gitignore` and built at the build level for systems. Its better to setup the module to be used via script to run with pre-install scripts or pre-build scripts - checkout [build.sh](build.sh) for an example. Make sure to add a environmental(.env) variable named `API_HOST` with the url of your api endpoint. If you want to build a mock api set `API_HOST=localhost` to make all endpoints return mock data.
+Make sure to create a mocks and a schemas directory. Check out the schema section to learn how to build your api. The idea is that the api routes are always checked in `.gitignore` and built at the build level for systems. Its better to setup the module to be used via script to run with pre-install scripts or pre-build scripts - checkout [build.sh](build.sh) for an example. Make sure to add a environmental(.env) variable named `API_HOST` with the url of your api endpoint. If you want to build a mock api set `API_HOST=localhost` to make all endpoints return mock data. If you need to change the route generation paths use the `API_BUILD_PATH` env variable targeting your location.
 
 ```typescript
 import { codegen } from "https://deno.land/x/apigen/mod.ts";
@@ -77,3 +77,16 @@ export const mock = ["hi", "bye"];
 A json file named of the lambda functions that you are going to create.
 
 TODO: checkout initial schema example.
+
+## CLI
+
+command line args
+
+`--apiPath`
+path to create lambda routes
+`--formula` :options (init)
+
+## Env Variables
+
+1. API_BUILD_PATH
+1. API_HOST

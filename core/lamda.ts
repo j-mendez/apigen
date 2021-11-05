@@ -205,7 +205,7 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
   export default async (req: NextApiRequest, res: NextApiResponse) => {
       ${genInitVars()}
       let body = req.body && JSON.parse(req.body);
-      
+
       ${genValidators()}
       ${await genBody()}
       
@@ -226,6 +226,7 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
       `
           : ""
       }
+      
       return res.status(status).send(bodyData)
   };`;
 

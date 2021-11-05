@@ -5,9 +5,9 @@ import type { Schema } from "./types.ts";
 
 const args = cliParse(Deno.args);
 
-const apiPath = args?.apiPath ?? "./pages/api";
-
 export async function codegen() {
+  const apiPath =
+    args?.apiPath ?? Deno.env.get("API_BUILD_PATH") ?? "./pages/api";
   await ensureDir(apiPath);
   Deno.writeTextFile(`${apiPath}/tsconfig.json`, tsConfig);
 
@@ -34,7 +34,7 @@ export function main(name: string): string {
 }
 
 if (args?.formula === "init") {
-  console.log(main(Deno.env.get("appName") ?? "codegen"));
+  console.log(main(Deno.env.get("APP_NAME") ?? "apigen"));
 } else {
   console.log(
     "Your missing arguements, try adding --formula init to get started or check out the docs for valid options."
