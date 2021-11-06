@@ -8,10 +8,13 @@ const args = cliParse(Deno.args);
 export async function codegen() {
   const apiPath =
     args?.apiPath ?? Deno.env.get("API_BUILD_PATH") ?? "./pages/api";
-  await ensureDir(apiPath);
-  Deno.writeTextFile(`${apiPath}/tsconfig.json`, tsConfig);
+  const schemasPath =
+    args?.schemaPath ?? Deno.env.get("API_SCHEMAS_PATH") ?? "./schemas";
 
-  for await (const dirEntry of Deno.readDirSync("schemas")) {
+  await ensureDir(apiPath);
+  await Deno.writeTextFile(`${apiPath}/tsconfig.json`, tsConfig);
+
+  for await (const dirEntry of Deno.readDirSync(schemasPath)) {
     const schemaPath = `./schemas/${dirEntry.name}`;
     if (schemaPath.includes(".json")) {
       const schema = JSON.parse(Deno.readTextFileSync(schemaPath));
@@ -21,8 +24,10 @@ export async function codegen() {
       }
 
       schema.endpoints.forEach(async (scheme: Schema) => {
-        const lambda = await lambdaGenerator(scheme);
-        Deno.writeTextFile(`${apiPath}/${scheme.path}.ts`, lambda);
+        await Deno.writeTextFile(
+          `${apiPath}/${scheme.path}.ts`,
+          await lambdaGenerator(scheme)
+        );
       });
     }
   }
@@ -30,7 +35,7 @@ export async function codegen() {
 
 export async function main(name: string) {
   await codegen();
-  return "Codegen starting for " + name;
+  return `Codegen starting for ${name}`;
 }
 
 if (args?.formula === "init") {

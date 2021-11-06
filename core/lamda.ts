@@ -3,18 +3,19 @@ import type { Schema } from "../types.ts";
 
 const env = config();
 
-const API_HOST = env.API_HOST ?? Deno.env.get("API_HOST");
-
 /**
  * Import mock data.
  * @param {string} mockName
  * @returns {string} Lambda method
  */
 const importMock = async (mockName: string): Promise<string> => {
+  const mocksPath =
+    env?.API_MOCKS_PATH ?? Deno.env.get("API_MOCKS_PATH") ?? "../mocks/";
+
   const { mock } = await import(
-    "../mocks/" + mockName.replace("@import ", "") + ".ts"
+    `${mocksPath}${mockName.replace("@import ", "")}.ts`
   ).catch((e) => {
-    console.error([e, "please create a mocks directory with your api mocks"]);
+    console.error([e, "please create a mocks directory with your API mocks"]);
     return { mock: null };
   });
 
@@ -27,7 +28,9 @@ const importMock = async (mockName: string): Promise<string> => {
  * @returns {string} Lambda method
  */
 const lambdaGenerator = async ({ method, url, mock }: Schema) => {
+  const API_HOST = env.API_HOST ?? Deno.env.get("API_HOST");
   const shouldMock = mock && API_HOST === "localhost";
+
   const genBody = async (): Promise<string> => {
     let errorBody = "";
 
@@ -45,7 +48,6 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
         `
       try {
          const auth = req.headers['authorization'] ?? res.getHeader('authorization');
-
          const headers = new Headers();
 
          headers.append('Content-Type', 'application/json');
@@ -83,11 +85,9 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
           });
 
           status = data.status;
-          statusText = data.statusText;
 
           if ([200, 400, 401, 405, 500].includes(data.status)) {
               response = await data.json();
-              jwt = data.headers.get('Authorization');
           }
 
       } catch (e) {
@@ -132,11 +132,9 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
     let endpoint = '${url}';      
     let method = '${method ?? "GET"}';`
     }
-    let jwt${shouldMock && mock.jwt ? `= "Bearer @Auth_User"` : ""};
-    let response: any;
+    let response: any = {};
     let errors: string[] = [];
-    let status = 200;
-    let statusText: string;`;
+    let status = 200;`;
   };
 
   /**
@@ -182,8 +180,7 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
               errors: errors.length ? errors : null,
           }),
           headers: new Headers({
-              'content-type': 'application/json; charset=utf-8',
-              'Authorization': jwt,
+              'content-type': 'application/json; charset=utf-8'
           }),
       });
   };`;
@@ -216,21 +213,10 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
         errors: errors?.length ? errors : null
       };
 
-      ${
-        ["/login", "/register"].includes(url)
-          ? `
-      if (status === 200 && jwt) {
-        res.setHeader('content-type', 'application/json; charset=utf-8');
-        res.setHeader('Authorization', jwt);
-      }
-      `
-          : ""
-      }
-      
       return res.status(status).send(bodyData)
   };`;
 
-  const lamda = !env.DENO_RUNTIME ? await nodeLambda() : await denoLambda();
+  const lamda = await (!env.DENO_RUNTIME ? nodeLambda : denoLambda)();
 
   return prettier.format(lamda, {
     parser: "typescript",
