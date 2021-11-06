@@ -14,6 +14,5 @@ else
 	_deno="deno"
 fi
 
-
 $_deno run --allow-read --allow-env --allow-net --unstable --allow-run --allow-write ./builder.ts --formula init
 
