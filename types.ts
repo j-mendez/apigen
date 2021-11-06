@@ -30,5 +30,5 @@ export type Schema = {
 
 export interface CodegenOptions {
   apiBuildPath?: string;
-  schemaPath?: string;
+  schemasPath?: string;
 }

@@ -84,7 +84,7 @@ command line args
 
 `--apiBuildPath`
 path to create lambda routes
-`--schemaPath`
+`--schemasPath`
 path of schemas to read
 `--formula` :options (init)
 

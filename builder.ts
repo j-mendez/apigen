@@ -12,8 +12,8 @@ export async function codegen(options?: CodegenOptions) {
     Deno.env.get("API_BUILD_PATH") ??
     "./pages/api";
   const schemasPath =
-    options?.schemaPath ??
-    args?.schemaPath ??
+    options?.schemasPath ??
+    args?.schemasPath ??
     Deno.env.get("API_SCHEMAS_PATH") ??
     "./schemas";
 
@@ -21,7 +21,7 @@ export async function codegen(options?: CodegenOptions) {
   await Deno.writeTextFile(`${apiBuildPath}/tsconfig.json`, tsConfig);
 
   for await (const dirEntry of Deno.readDirSync(schemasPath)) {
-    const schemaPath = `./schemas/${dirEntry.name}`;
+    const schemaPath = `${schemasPath}/${dirEntry.name}`;
     if (schemaPath.includes(".json")) {
       const schema = JSON.parse(Deno.readTextFileSync(schemaPath));
 
@@ -37,17 +37,4 @@ export async function codegen(options?: CodegenOptions) {
       });
     }
   }
-}
-
-export async function main() {
-  await codegen();
-  return `Codegen starting for ${Deno.env.get("APP_NAME") ?? "apigen"}`;
-}
-
-if (args?.formula === "init") {
-  console.log(await main());
-} else {
-  console.log(
-    "Your missing arguements, try adding --formula init to get started or check out the docs for valid options."
-  );
 }
