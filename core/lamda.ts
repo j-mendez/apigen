@@ -1,19 +1,17 @@
 import { config, prettier, prettierPlugins } from "../deps.ts";
-import type { Schema } from "../types.ts";
+import type { Schema, CodegenOptions } from "../types.ts";
 
 const env = config();
 
 /**
  * Import mock data.
  * @param {string} mockName
+ * @param {string} mocksPath
  * @returns {string} Lambda method
  */
-const importMock = async (mockName: string): Promise<string> => {
-  const mocksPath =
-    env?.API_MOCKS_PATH ?? Deno.env.get("API_MOCKS_PATH") ?? "../mocks/";
-
+const importMock = async (mockName: string, mocksPath?: string) => {
   const { mock } = await import(
-    `${mocksPath}${mockName.replace("@import ", "")}.ts`
+    `${mocksPath ?? "../mocks/"}${mockName.replace("@import ", "")}.ts`
   ).catch((e) => {
     console.error([e, "please create a mocks directory with your API mocks"]);
     return { mock: null };
@@ -27,8 +25,11 @@ const importMock = async (mockName: string): Promise<string> => {
  * @param {Schema} schema
  * @returns {string} Lambda method
  */
-const lambdaGenerator = async ({ method, url, mock }: Schema) => {
-  const API_HOST = env.API_HOST ?? Deno.env.get("API_HOST");
+const lambdaGenerator = async (
+  { method, url, mock }: Schema,
+  options?: CodegenOptions
+) => {
+  const API_HOST = options?.apiHost ?? env.API_HOST ?? Deno.env.get("API_HOST");
   const shouldMock = mock && API_HOST === "localhost";
 
   const genBody = async (): Promise<string> => {
@@ -39,7 +40,7 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
         mock && typeof mock.data === "string" && mock.data.includes("@import");
 
       const mockData = isMockImport
-        ? await importMock(mock.data + "")
+        ? await importMock(mock.data + "", options?.mocksPath)
         : JSON.stringify(mock.data ?? "null");
 
       errorBody = `response = {${`data: ${mockData}`}};`;
@@ -224,4 +225,4 @@ const lambdaGenerator = async ({ method, url, mock }: Schema) => {
   });
 };
 
-export { lambdaGenerator };
+export { importMock, lambdaGenerator };

@@ -1,16 +1,16 @@
-type Field = { name: string; message?: string; status?: number };
+export type Field = { name: string; message?: string; status?: number };
 
-type Validator = {
+export type Validator = {
   fields: Field[];
 };
 
-type ApiShape = {
+export type ApiShape = {
   data: any;
   message?: string;
   errors?: string[];
 };
 
-interface DataMock {
+export interface DataMock {
   data: ApiShape | string;
   ["data:error"]: {
     message: string;
@@ -30,5 +30,7 @@ export type Schema = {
 
 export interface CodegenOptions {
   apiBuildPath?: string;
-  schemaPath?: string;
+  apiHost?: string;
+  mocksPath?: string;
+  schemasPath?: string;
 }
