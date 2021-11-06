@@ -21,7 +21,9 @@ await codegen({
 
 ### Configuration
 
-example: `schema`
+Json files named of the lambda functions that you are going to create in the `schemasPath` location.
+
+#### Schema
 
 ```json
 {
@@ -50,37 +52,19 @@ example: `schema`
 }
 ```
 
-## Mocks
+#### Mocks
 
-In order to import a mock file add `@import filename` under the `mock.data` key and replace filename with the mock path in the mocks folder. Make sure to export your mock correctly.
+In order to import a mock add `@import filename` under the `mock.data` key and replace filename with the mock path in the mocks folder. The mock has to be in the form of json to work.
 
 ```json
-{
-  "endpoints": [
-    {
-      "path": "/friends",
-      "url": "friends/api/list",
-      "method": "GET",
-      "mock": {
-        "data": "@import friends",
-        "data:error": {
-          "message": "Access denied."
-        }
-      }
-    }
-  ]
-}
+[
+  {
+    "id": "0",
+    "name": "John",
+    "email": "something@email.com"
+  }
+]
 ```
-
-Make sure to export the var named as `mock` in order for the builder to pick it up.
-
-```typescript
-export const mock = ["hi", "bye"];
-```
-
-## Schema
-
-A json file named of the lambda functions that you are going to create.
 
 ## CLI
 
@@ -100,9 +84,11 @@ path of mocks to read
 1. API_BUILD_PATH
 1. API_SCHEMAS_PATH
 1. API_MOCKS_PATH
+1. DENO_RUNTIME
 
 ## Languages/Support
 
 1. Deno
 1. Node
 1. Vercel/Next.js
+1. Rust - Todo

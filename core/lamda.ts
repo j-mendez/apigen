@@ -10,14 +10,26 @@ const env = config();
  * @returns {string} Lambda method
  */
 const importMock = async (mockName: string, mocksPath?: string) => {
-  const { mock } = await import(
-    `${mocksPath ?? "../mocks/"}${mockName.replace("@import ", "")}.ts`
-  ).catch((e) => {
-    console.error([e, "please create a mocks directory with your API mocks"]);
-    return { mock: null };
-  });
+  const mockFilePath = `${mocksPath ?? "../mocks/"}${mockName.replace(
+    "@import ",
+    ""
+  )}.json`;
 
-  return mock ? JSON.stringify(mock) : "null";
+  try {
+    const mock = Deno.readTextFileSync(mockFilePath);
+
+    if (!mock) {
+      console.error(["please export your file as valid json"]);
+      return null;
+    }
+
+    return mock || null;
+  } catch (e) {
+    console.error([
+      "please check your mocks directory and path set for your files",
+    ]);
+    return null;
+  }
 };
 
 /**
