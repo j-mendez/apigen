@@ -3,13 +3,18 @@ import { lambdaGenerator } from "./core/lamda.ts";
 import { tsConfig } from "./core/tsconfig.ts";
 import type { Schema, CodegenOptions } from "./types.ts";
 
+/**
+ * Generate api code.
+ * @param {CodegenOptions} options
+ * @returns {void} System generated files
+ */
 export async function codegen(options?: CodegenOptions) {
   const apiBuildPath =
     options?.apiBuildPath ?? Deno.env.get("API_BUILD_PATH") ?? "./pages/api";
   const schemasPath =
     options?.schemasPath ?? Deno.env.get("API_SCHEMAS_PATH") ?? "./schemas";
   const mocksPath =
-    options?.mocksPath ?? Deno.env.get("API_MOCKS_PATH") ?? "../mocks/";
+    options?.mocksPath ?? Deno.env.get("API_MOCKS_PATH") ?? "./mocks/";
 
   await ensureDir(apiBuildPath);
   await Deno.writeTextFile(`${apiBuildPath}/tsconfig.json`, tsConfig);
