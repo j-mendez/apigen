@@ -82,8 +82,10 @@ TODO: checkout initial schema example.
 
 command line args
 
-`--apiPath`
+`--apiBuildPath`
 path to create lambda routes
+`--schemaPath`
+path of schemas to read
 `--formula` :options (init)
 
 ## Env Variables

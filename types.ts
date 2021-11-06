@@ -12,10 +12,10 @@ type ApiShape = {
 
 interface DataMock {
   data: ApiShape | string;
-  ['data:error']: {
+  ["data:error"]: {
     message: string;
   };
-  ['data:unready']: {};
+  ["data:unready"]: {};
   jwt?: boolean;
   validator?: Validator;
 }
@@ -27,3 +27,8 @@ export type Schema = {
   mock: DataMock;
   deno?: boolean;
 };
+
+export interface CodegenOptions {
+  apiBuildPath?: string;
+  schemaPath?: string;
+}

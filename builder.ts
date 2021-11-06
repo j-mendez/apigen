@@ -1,18 +1,24 @@
 import { cliParse, ensureDir } from "./deps.ts";
 import { lambdaGenerator } from "./core/lamda.ts";
 import { tsConfig } from "./core/tsconfig.ts";
-import type { Schema } from "./types.ts";
+import type { Schema, CodegenOptions } from "./types.ts";
 
 const args = cliParse(Deno.args);
 
-export async function codegen() {
-  const apiPath =
-    args?.apiPath ?? Deno.env.get("API_BUILD_PATH") ?? "./pages/api";
+export async function codegen(options?: CodegenOptions) {
+  const apiBuildPath =
+    options?.apiBuildPath ??
+    args?.apiBuildPath ??
+    Deno.env.get("API_BUILD_PATH") ??
+    "./pages/api";
   const schemasPath =
-    args?.schemaPath ?? Deno.env.get("API_SCHEMAS_PATH") ?? "./schemas";
+    options?.schemaPath ??
+    args?.schemaPath ??
+    Deno.env.get("API_SCHEMAS_PATH") ??
+    "./schemas";
 
-  await ensureDir(apiPath);
-  await Deno.writeTextFile(`${apiPath}/tsconfig.json`, tsConfig);
+  await ensureDir(apiBuildPath);
+  await Deno.writeTextFile(`${apiBuildPath}/tsconfig.json`, tsConfig);
 
   for await (const dirEntry of Deno.readDirSync(schemasPath)) {
     const schemaPath = `./schemas/${dirEntry.name}`;
@@ -25,7 +31,7 @@ export async function codegen() {
 
       schema.endpoints.forEach(async (scheme: Schema) => {
         await Deno.writeTextFile(
-          `${apiPath}/${scheme.path}.ts`,
+          `${apiBuildPath}/${scheme.path}.ts`,
           await lambdaGenerator(scheme)
         );
       });
@@ -33,13 +39,13 @@ export async function codegen() {
   }
 }
 
-export async function main(name: string) {
+export async function main() {
   await codegen();
-  return `Codegen starting for ${name}`;
+  return `Codegen starting for ${Deno.env.get("APP_NAME") ?? "apigen"}`;
 }
 
 if (args?.formula === "init") {
-  console.log(await main(Deno.env.get("APP_NAME") ?? "apigen"));
+  console.log(await main());
 } else {
   console.log(
     "Your missing arguements, try adding --formula init to get started or check out the docs for valid options."
