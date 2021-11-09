@@ -1,6 +1,6 @@
 # apigen
 
-Auto generate api routes for development and production. Use mocks to build api routes for local envs. Works perfect for next.js and deno. The fastest way to build your API and test with confidence.
+Auto generate api routes for development and production. Use mocks to build api routes for local envs. Works perfect for next.js and deno. The fastest way to build your API and test with confidence. Generate over 10k different lambdas in seconds.
 
 ## Getting Started
 
@@ -24,6 +24,10 @@ await codegen({
 Json files named of the lambda functions that you are going to create in the `schemasPath` location.
 
 #### Schema
+
+The formats you can use to generate your api are json, csv, and xml.
+If you use xml you need to start deno using `--allow-net='api.factmaven.com`.
+Your best option is to use json.
 
 ```json
 {
@@ -54,7 +58,7 @@ Json files named of the lambda functions that you are going to create in the `sc
 
 #### Mocks
 
-In order to import a mock add `@import filename` under the `mock.data` key and replace filename with the mock path in the mocks folder. The mock has to be in the form of json to work.
+In order to import a mock add `@import filename` under the `mock.data` key and replace filename with the mock path in the mocks folder. Mocks at the moment are only supported in json format for file type.
 
 ```json
 [

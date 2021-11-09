@@ -1,7 +1,25 @@
-import { ensureDir } from "./deps.ts";
+import { ensureDir, XMLtoJSON, CSVtoJSON } from "./deps.ts";
 import { lambdaGenerator } from "./core/lamda.ts";
 import { tsConfig } from "./core/tsconfig.ts";
 import type { Schema, CodegenOptions } from "./types.ts";
+
+/**
+ * Get Schema format.
+ * @param {schemaText} string
+ * @param {xml} boolean
+ * @param {csv} boolean
+ * @returns {void} System generated files
+ */
+
+const getSchema = async (schemaText: string, xml: boolean, csv: boolean) => {
+  if (xml) {
+    return await XMLtoJSON(schemaText);
+  } else if (csv) {
+    return await CSVtoJSON(schemaText);
+  } else {
+    return JSON.parse(schemaText);
+  }
+};
 
 /**
  * Generate api code.
@@ -21,16 +39,26 @@ export async function codegen(options?: CodegenOptions) {
 
   for await (const dirEntry of Deno.readDirSync(schemasPath)) {
     const schemaPath = `${schemasPath}/${dirEntry.name}`;
-    if (schemaPath.includes(".json")) {
-      const schema = JSON.parse(Deno.readTextFileSync(schemaPath));
 
-      if (!schema.endpoints) {
+    if ([".json", ".xml", ".csv"].some((ext) => schemaPath.includes(ext))) {
+      const xml = schemaPath.includes(".xml");
+      const csv = schemaPath.includes(".csv");
+
+      const schema = await getSchema(
+        Deno.readTextFileSync(schemaPath),
+        xml,
+        csv
+      );
+
+      const endpoints = Array.isArray(schema) ? schema : schema?.endpoints;
+
+      if (!endpoints) {
         throw "Endpoints array required in json file";
       }
 
-      schema.endpoints.forEach(async (scheme: Schema) => {
+      endpoints.forEach(async (scheme: Schema) => {
         await Deno.writeTextFile(
-          `${apiBuildPath}/${scheme.path}.ts`,
+          `${apiBuildPath}/${scheme.path ?? Math.random()}.ts`,
           await lambdaGenerator(scheme, {
             apiHost: options?.apiHost,
             mocksPath,

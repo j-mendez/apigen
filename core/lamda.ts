@@ -9,7 +9,7 @@ const env = config();
  * @param {string} mocksPath
  * @returns {string} Lambda method
  */
-const importMock = async (mockName: string, mocksPath?: string) => {
+const importMock = (mockName: string, mocksPath?: string) => {
   const mockFileBasePath = String(mocksPath).match(/\/$/)
     ? mocksPath
     : `${mocksPath}/`;
@@ -29,6 +29,7 @@ const importMock = async (mockName: string, mocksPath?: string) => {
     return mock || null;
   } catch (e) {
     console.error([
+      e,
       "please check your mocks directory and path set for your files",
     ]);
     return null;
@@ -120,7 +121,8 @@ const lambdaGenerator = async (
   };
 
   const genValidators = (): string => {
-    const { validator } = mock;
+    const validator = mock?.validator;
+
     let validatorInsert = "";
 
     if (validator) {

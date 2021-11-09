@@ -5,7 +5,7 @@ export type Validator = {
 };
 
 export type ApiShape = {
-  data: any;
+  data: Record<string, unknown>;
   message?: string;
   errors?: string[];
 };
@@ -15,18 +15,18 @@ export interface DataMock {
   ["data:error"]: {
     message: string;
   };
-  ["data:unready"]: {};
+  ["data:unready"]: Record<string, unknown>;
   jwt?: boolean;
   validator?: Validator;
 }
 
-export type Schema = {
+export interface Schema {
   method: string;
   url: string;
   path: string;
   mock: DataMock;
   deno?: boolean;
-};
+}
 
 export interface CodegenOptions {
   apiBuildPath?: string;

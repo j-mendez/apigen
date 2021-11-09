@@ -13,3 +13,7 @@ export type {
   Validator,
   Schema,
 } from "./types.ts";
+export {
+  XMLtoJSON,
+  CSVtoJSON,
+} from "https://deno.land/x/data_format_converter@v1.2.0/mod.ts";
